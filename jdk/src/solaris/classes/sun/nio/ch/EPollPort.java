@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
+//静态引入EPoll下面的所有方法
+//我们在该类下可以直接使用EPoll类中的方法
 import static sun.nio.ch.EPoll.*;
 
 /**
@@ -209,6 +211,8 @@ final class EPollPort
                      * they can be handled by other handler threads. The last
                      * event is handled by this thread (and so is not queued).
                      */
+					// 添加读锁，不会影响其它读锁
+					// 但是此时是不能上写锁的
                     fdToChannelLock.readLock().lock();
                     try {
                         while (n-- > 0) {
@@ -303,6 +307,7 @@ final class EPollPort
 
                     // process event
                     try {
+						 //执行channel的event处理
                         ev.channel().onEvent(ev.events(), isPooledThread);
                     } catch (Error x) {
                         replaceMe = true; throw x;

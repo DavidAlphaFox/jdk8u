@@ -50,6 +50,7 @@ class EPoll {
      *     epoll_data_t data;
      * }
      */
+	 //从native中拿到epoll_event结构体的大小
     private static final int SIZEOF_EPOLLEVENT   = eventSize();
     private static final int OFFSETOF_EVENTS     = eventsOffset();
     private static final int OFFSETOF_FD         = dataOffset();

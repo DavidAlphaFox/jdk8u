@@ -185,7 +185,9 @@ class UnixAsynchronousSocketChannelImpl
         // complete the I/O operation. Special case for when channel is
         // ready for both reading and writing. In that case, submit task to
         // complete write if write operation has a completion handler.
+		// 完成读写事件的操作
         if (finishRead) {
+			 //判断是否有写事件
             if (finishWrite)
                 finishWrite(false);
             finishRead(mayInvokeDirect);
@@ -202,6 +204,9 @@ class UnixAsynchronousSocketChannelImpl
     /**
      * Invoked by event handler thread when file descriptor is polled
      */
+	 //事件，是否需要直接invoke
+	 //从EPollPort中传过来的mayInvokeDirect是根据是否是PooledThread来决定
+	 //而决定是否是PooledThread的重要依据是，是否有GroupAndInvokeCount这个TLS存储
     @Override
     public void onEvent(int events, boolean mayInvokeDirect) {
         boolean readable = (events & Net.POLLIN) > 0;
@@ -366,7 +371,7 @@ class UnixAsynchronousSocketChannelImpl
     }
 
     // -- read --
-
+// 完成读事件的操作
     private void finishRead(boolean mayInvokeDirect) {
         int n = -1;
         Throwable exc = null;
@@ -415,6 +420,7 @@ class UnixAsynchronousSocketChannelImpl
         }
 
         // cancel the associated timer
+		// 取消计算超时的timer
         if (timeout != null)
             timeout.cancel(false);
 
@@ -427,8 +433,10 @@ class UnixAsynchronousSocketChannelImpl
             future.setResult(result, exc);
         } else {
             if (mayInvokeDirect) {
+				 //是Pooled线程，直接执行
                 Invoker.invokeUnchecked(handler, att, result, exc);
             } else {
+				 //否则提交到任务队列上
                 Invoker.invokeIndirectly(this, handler, att, result, exc);
             }
         }

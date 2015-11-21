@@ -51,6 +51,7 @@ abstract class Port extends AsynchronousChannelGroupImpl {
 
     // maps fd to "pollable" channel
     protected final ReadWriteLock fdToChannelLock = new ReentrantReadWriteLock();
+	 // native层的fd和Channel对应的关系
     protected final Map<Integer,PollableChannel> fdToChannel =
         new HashMap<Integer,PollableChannel>();
 
