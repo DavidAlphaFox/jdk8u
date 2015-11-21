@@ -64,7 +64,8 @@ public class LinuxAsynchronousChannelProvider
 		 //创建一个Epoll的Port
         return new EPollPort(this, ThreadPool.wrap(executor, initialSize)).start();
     }
-
+	 //如果自己不开启group
+	 //则使用defaultEventPort
     private Port toPort(AsynchronousChannelGroup group) throws IOException {
         if (group == null) {
             return defaultEventPort();

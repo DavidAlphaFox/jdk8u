@@ -220,6 +220,9 @@ abstract class AsynchronousSocketChannelImpl
                                                      A attachment,
                                                      CompletionHandler<V,? super A> handler);
 
+	 //read(false, dst, null, 0L, TimeUnit.MILLISECONDS, null, null);
+	 //只传入一个buffer的时候
+	 //分散读取为false，不使用超时，没有附加数据，不使用handler
     @SuppressWarnings("unchecked")
     private <V extends Number,A> Future<V> read(boolean isScatteringRead,
                                                 ByteBuffer dst,
@@ -283,6 +286,7 @@ abstract class AsynchronousSocketChannelImpl
     public final Future<Integer> read(ByteBuffer dst) {
         if (dst.isReadOnly())
             throw new IllegalArgumentException("Read-only buffer");
+		//不使用超时
         return read(false, dst, null, 0L, TimeUnit.MILLISECONDS, null, null);
     }
 

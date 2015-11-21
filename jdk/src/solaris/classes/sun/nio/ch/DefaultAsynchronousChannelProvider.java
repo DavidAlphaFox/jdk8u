@@ -59,6 +59,8 @@ public class DefaultAsynchronousChannelProvider {
     /**
      * Returns the default AsynchronousChannelProvider.
      */
+	 //并没有为BSD系统提供AIO特性
+	 //只为AIX和MAC OS X提供了AIO特性
     public static AsynchronousChannelProvider create() {
         String osname = AccessController
             .doPrivileged(new GetPropertyAction("os.name"));
