@@ -61,6 +61,7 @@ public class LinuxAsynchronousChannelProvider
     public AsynchronousChannelGroup openAsynchronousChannelGroup(ExecutorService executor, int initialSize)
         throws IOException
     {
+		 //创建一个Epoll的Port
         return new EPollPort(this, ThreadPool.wrap(executor, initialSize)).start();
     }
 

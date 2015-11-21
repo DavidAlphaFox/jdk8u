@@ -33,7 +33,7 @@ import sun.security.action.GetIntegerAction;
 /**
  * Defines static methods to invoke a completion handler or arbitrary task.
  */
-
+/*AIO专用的静态方法库*/
 class Invoker {
     private Invoker() { }
 
@@ -46,6 +46,8 @@ class Invoker {
     // Per-thread object with reference to channel group and a counter for
     // the number of completion handlers invoked. This should be reset to 0
     // when all completion handlers have completed.
+	 // 每个Thread都会有一个这个对象
+	 // 用来缓存自己所属的Group和需要invoked的数量
     static class GroupAndInvokeCount {
         private final AsynchronousChannelGroupImpl group;
         private int handlerInvokeCount;
@@ -79,6 +81,7 @@ class Invoker {
      * Binds this thread to the given group
      */
     static void bindToGroup(AsynchronousChannelGroupImpl group) {
+		 // myGroupAndInvokeCount是TLS
         myGroupAndInvokeCount.set(new GroupAndInvokeCount(group));
     }
 
@@ -209,6 +212,7 @@ class Invoker {
                                        final Throwable exc)
     {
         try {
+			 //在该group的ThreadPool上执行
             ((Groupable)channel).group().executeOnPooledThread(new Runnable() {
                 public void run() {
                     GroupAndInvokeCount thisGroupAndInvokeCount =

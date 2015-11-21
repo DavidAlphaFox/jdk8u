@@ -129,7 +129,7 @@ import java.util.concurrent.TimeUnit;
  * @see AsynchronousSocketChannel#open(AsynchronousChannelGroup)
  * @see AsynchronousServerSocketChannel#open(AsynchronousChannelGroup)
  */
-
+//抽象类
 public abstract class AsynchronousChannelGroup {
     private final AsynchronousChannelProvider provider;
 

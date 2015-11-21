@@ -76,7 +76,9 @@ final class EPollPort
 
     // queue of events for cases that a polling thread dequeues more than one
     // event
+	 //使用带锁的事件数组当做队列
     private final ArrayBlockingQueue<Event> queue;
+	 //定义两个特殊的事件
     private final Event NEED_TO_POLL = new Event(null, 0);
     private final Event EXECUTE_TASK_OR_SHUTDOWN = new Event(null, 0);
 
@@ -89,6 +91,7 @@ final class EPollPort
         this.epfd = epollCreate();
 
         // create socket pair for wakeup mechanism
+		// 创建socket_pair，为了完成唤醒机制
         int[] sv = new int[2];
         try {
             socketpair(sv);
@@ -105,6 +108,7 @@ final class EPollPort
 
         // create the queue and offer the special event to ensure that the first
         // threads polls
+		// 创建一个512个空间的数组，做为队列
         this.queue = new ArrayBlockingQueue<Event>(MAX_EPOLL_EVENTS);
         this.queue.offer(NEED_TO_POLL);
     }
@@ -187,6 +191,13 @@ final class EPollPort
      * event is used to signal one consumer to re-poll when all events have
      * been consumed.
      */
+	 //处理Epoll的任务
+	 //所有的线程执行该类
+	 //所有线程都尝试从queue中取任务
+	 //先抢到NEED_TO_POLL这任务的线程执行polling任务
+	 //并且整个队列中只有一个NEED_TO_POLL任务
+	 //执行polling任务的线程，在polling结束后，会再次投递NEED_TO_POLL任务到队列中
+	 //如果队列为空的时候，则所有线程在queue.take处进行等待
     private class EventHandlerTask implements Runnable {
         private Event poll() throws IOException {
             try {
@@ -205,6 +216,7 @@ final class EPollPort
                             int fd = getDescriptor(eventAddress);
 
                             // wakeup
+							// 外部唤醒，从该AIO外部投递了事件进来
                             if (fd == sp[0]) {
                                 if (wakeupCount.decrementAndGet() == 0) {
                                     // no more wakeups so drain pipe
@@ -263,6 +275,7 @@ final class EPollPort
 
                         // no events and this thread has been "selected" to
                         // poll for more.
+						// 如果是NEED_TO_POLL 则进入等待poll状态
                         if (ev == NEED_TO_POLL) {
                             try {
                                 ev = poll();

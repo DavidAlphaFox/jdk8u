@@ -229,6 +229,7 @@ abstract class AsynchronousSocketChannelImpl
                                                 A att,
                                                 CompletionHandler<V,? super A> handler)
     {
+		 //确定Channel打开
         if (!isOpen()) {
             Throwable e = new ClosedChannelException();
             if (handler == null)
@@ -244,6 +245,7 @@ abstract class AsynchronousSocketChannelImpl
         boolean shutdown = false;
 
         // check and update state
+		// 锁定readLock确定状态
         synchronized (readLock) {
             if (readKilled)
                 throw new IllegalStateException("Reading not allowed due to timeout or cancellation");
@@ -260,6 +262,7 @@ abstract class AsynchronousSocketChannelImpl
 
         // immediately complete with -1 if shutdown for read
         // immediately complete with 0 if no space remaining
+		// 关闭了或者没有存储空间了
         if (shutdown || !hasSpaceToRead) {
             Number result;
             if (isScatteringRead) {

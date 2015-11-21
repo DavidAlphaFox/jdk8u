@@ -68,13 +68,14 @@ abstract class AsynchronousChannelGroupImpl
     private final AtomicBoolean shutdown = new AtomicBoolean();
     private final Object shutdownNowLock = new Object();
     private volatile boolean terminateInitiated;
-
+//指定一个provider和线程池
     AsynchronousChannelGroupImpl(AsynchronousChannelProvider provider,
                                  ThreadPool pool)
     {
         super(provider);
         this.pool = pool;
-
+		//如果是固定大小的线程池
+		//则创建一个任务队列
         if (pool.isFixedThreadPool()) {
             taskQueue = new ConcurrentLinkedQueue<Runnable>();
         } else {
@@ -83,6 +84,7 @@ abstract class AsynchronousChannelGroupImpl
 
         // use default thread factory as thread should not be visible to
         // application (it doesn't execute completion handlers).
+		// 创建一个超时处理队列
         this.timeoutExecutor = (ScheduledThreadPoolExecutor)
             Executors.newScheduledThreadPool(1, ThreadPool.defaultThreadFactory());
         this.timeoutExecutor.setRemoveOnCancelPolicy(true);
@@ -113,7 +115,7 @@ abstract class AsynchronousChannelGroupImpl
             }
         };
     }
-
+	 
     private void startInternalThread(final Runnable task) {
         AccessController.doPrivileged(new PrivilegedAction<Void>() {
             @Override
@@ -125,7 +127,7 @@ abstract class AsynchronousChannelGroupImpl
             }
          });
     }
-
+	 //创建线程
     protected final void startThreads(Runnable task) {
         if (!isFixedThreadPool()) {
             for (int i=0; i<internalThreadCount; i++) {

@@ -500,7 +500,7 @@ class UnixAsynchronousSocketChannelImpl
 
         try {
             begin();
-
+			// 尝试读取
             if (attemptRead) {
                 if (isScatteringRead) {
                     n = (int)IOUtil.read(fd, dsts, nd);
@@ -508,7 +508,9 @@ class UnixAsynchronousSocketChannelImpl
                     n = IOUtil.read(fd, dst, -1, nd);
                 }
             }
-
+			// 如果是不可读的
+			// 更新状态，创建一个读取的future
+			// 直接返回给用户
             if (n == IOStatus.UNAVAILABLE) {
                 PendingFuture<V,A> result = null;
                 synchronized (updateLock) {
@@ -548,8 +550,11 @@ class UnixAsynchronousSocketChannelImpl
             (Number)Long.valueOf(n) : (Number)Integer.valueOf(n);
 
         // read completed immediately
+		// 读直接成功了
         if (handler != null) {
             if (invokeDirect) {
+				 // 进行直接调用
+				 // 内部会判断是否是同组
                 Invoker.invokeDirect(myGroupAndInvokeCount, handler, attachment, (V)result, exc);
             } else {
                 Invoker.invokeIndirectly(this, handler, attachment, (V)result, exc);

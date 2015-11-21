@@ -24,7 +24,7 @@
  */
 
 package sun.nio.ch;
-
+//java.nio包在share中
 import java.nio.channels.spi.AsynchronousChannelProvider;
 import java.nio.channels.*;
 import java.io.IOException;
@@ -38,7 +38,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 /**
  * Base implementation of AsynchronousChannelGroupImpl for Unix systems.
  */
-
+// 所有Port的基础类
+// AsynchronousChannelGroupImpl 在share的sun.nio.ch里面
 abstract class Port extends AsynchronousChannelGroupImpl {
 
     /**
